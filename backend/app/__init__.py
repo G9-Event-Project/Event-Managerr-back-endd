@@ -27,7 +27,7 @@ def create_app():
     limiter = Limiter(
         key_func=get_remote_address,
         default_limits=["200 per day", "50 per hour"],
-        storage_uri=os.getenv('REDIS_URL', 'memory://')
+        storage_uri='memory://'
     )
     limiter.init_app(app)
     CORS(app, resources={r"/api/*": {"origins": ["https://your-vercel-frontend.vercel.app"]}})
