@@ -7,14 +7,14 @@ from datetime import timedelta
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 # Register
-@auth_bp.route('/auth/register', methods=['POST'])
+@auth_bp.route('/register', methods=['POST'])
 @limiter.limit("10 per minute")
 def register():
     data = request.get_json()
     if not data or not all(k in data for k in ['username', 'email', 'password']):
         return jsonify({'error': 'Missing fields'}), 400
     if User.query.filter_by(username=data['username']).first():
-        return jsonify({'error': 'Username exists'}), 400
+        return jsonify({'error': 'Username already exists'}), 400
     if User.query.filter_by(email=data['email']).first():
         return jsonify({'error': 'Email already exists'}), 400
 
@@ -28,26 +28,7 @@ def register():
     return jsonify({'message': 'User registered successfully'}), 201
 
 # Login
-@auth_bp.route('/auth/login', methods=['POST'])
-@limiter.limit("10 per minute")
-def login():
-    data = request.get_json()
-    if not data or not all(k in data for k in ['username', 'email', 'password']):
-        return jsonify({'error': 'Missing fields'}), 400
-    if User.query.filter_by(username=data['username']).first():
-        return jsonify({'error': 'Username exists'}), 400
-    if User.query.filter_by(email=data['email']).first():
-        return jsonify({'error': 'Email exists'}), 400
-    user = User(
-        username=data['username'],
-        email=data['email'],
-        password_hash=bcrypt.generate_password_hash(data['password']).decode('utf-8')
-    )
-    db.session.add(user)
-    db.session.commit()
-    return jsonify({'message': 'User registered successfully'}), 201
-
-@auth_bp.route('/auth/login', methods=['POST'])
+@auth_bp.route('/login', methods=['POST'])
 @limiter.limit('10 per minute')
 def login():
     data = request.get_json()
@@ -64,7 +45,8 @@ def login():
         }), 200
     return jsonify({'error': 'Invalid email or password'}), 401
 
-@auth_bp.route('/auth/refresh', methods=['POST'])
+# Token Refresh
+@auth_bp.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
     user_id = get_jwt_identity()

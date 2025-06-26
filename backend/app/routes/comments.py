@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from backend.app import db, bcrypt, limiter
-from app import limiter
+from backend.app import db, limiter
+from app.models import Event, Comment  # Assuming these exist in app/models.py
 
 comments_bp = Blueprint('comments', __name__)
 
@@ -9,10 +9,12 @@ comments_bp = Blueprint('comments', __name__)
 @comments_bp.route('/comments/event/<int:event_id>', methods=['GET'])
 @jwt_required()
 def get_comments(event_id):
-    if not Event.query.get(event_id):
+    event = Event.query.get(event_id)
+    if not event:
         return jsonify({"error": "Event not found"}), 404
+
     comments = Comment.query.filter_by(event_id=event_id).all()
-    return jsonify([c.to_dict() for c in comments]), 200
+    return jsonify([comment.to_dict() for comment in comments]), 200
 
 # Add a comment to an event
 @comments_bp.route('/comments/event/<int:event_id>', methods=['POST'])
@@ -24,7 +26,9 @@ def add_comment(event_id):
 
     if not data or 'content' not in data or not data['content'].strip():
         return jsonify({"error": "Content is required"}), 400
-    if not Event.query.get(event_id):
+
+    event = Event.query.get(event_id)
+    if not event:
         return jsonify({"error": "Event not found"}), 404
 
     comment = Comment(
@@ -34,4 +38,5 @@ def add_comment(event_id):
     )
     db.session.add(comment)
     db.session.commit()
+
     return jsonify(comment.to_dict()), 201
