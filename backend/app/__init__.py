@@ -8,7 +8,6 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 
-# Initialize extensions
 db = SQLAlchemy()
 jwt = JWTManager()
 bcrypt = Bcrypt()
@@ -20,7 +19,6 @@ def create_app():
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'super-secret-key')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
     bcrypt.init_app(app)
@@ -32,7 +30,6 @@ def create_app():
     limiter.init_app(app)
     CORS(app, resources={r"/api/*": {"origins": ["https://your-vercel-frontend.vercel.app"]}})
 
-    # Initialize database
     with app.app_context():
         db.create_all()
 
@@ -44,11 +41,11 @@ def create_app():
     def favicon():
         return '', 204
 
-    # Register blueprints
-    from app.routes.auth import auth_bp
-    from app.routes.events import events_bp
-    from app.routes.comments import comments_bp
-    from app.routes.profile import profile_bp
+    from backend.app.routes.auth import auth_bp
+    from backend.app.routes.events import events_bp
+    from backend.app.routes.comments import comments_bp
+    from backend.app.routes.profile import profile_bp
+
 
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(events_bp, url_prefix='/api')
