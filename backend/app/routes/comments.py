@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from backend.app import db, limiter
-from app.models import Event, Comment  # Assuming these exist in app/models.py
+from backend.app.models import Event, Comment
 
 comments_bp = Blueprint('comments', __name__)
 

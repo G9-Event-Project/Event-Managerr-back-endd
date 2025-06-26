@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 from backend.app import db, bcrypt, limiter
-from app.models import User
+from backend.app.models import User
 from datetime import timedelta
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
