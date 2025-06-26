@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
@@ -8,37 +8,43 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 
-
+# Initialize extensions
 db = SQLAlchemy()
 jwt = JWTManager()
 bcrypt = Bcrypt()
-limiter = Limiter(
-    key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"]
-)
 
 def create_app():
-    
     load_dotenv()
-    
-  
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI', 'sqlite:///events.db')
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'super-secret-key')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
+    # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
     bcrypt.init_app(app)
+    limiter = Limiter(
+        key_func=get_remote_address,
+        default_limits=["200 per day", "50 per hour"],
+        storage_uri=os.getenv('REDIS_URL', 'memory://')
+    )
     limiter.init_app(app)
     CORS(app, resources={r"/api/*": {"origins": ["https://your-vercel-frontend.vercel.app"]}})
 
-  
+    # Initialize database
     with app.app_context():
         db.create_all()
 
-    
+    @app.route('/')
+    def home():
+        return jsonify({"message": "Welcome to Community Event Planner API", "endpoints": ["/api/register", "/api/login", "/api/events"]}), 200
+
+    @app.route('/favicon.ico')
+    def favicon():
+        return '', 204
+
+    # Register blueprints
     from app.routes.auth import auth_bp
     from app.routes.events import events_bp
     from app.routes.comments import comments_bp
