@@ -24,7 +24,7 @@ def create_app():
     jwt.init_app(app)
     bcrypt.init_app(app)
     limiter.init_app(app)
-    CORS(app, resources={r"/api/*": {"origins": ["https://event-frontend-ebon.vercel.app/"]}})
+    CORS(app, resources={r"/api/*": {"origins": ["https://event-manager-front-endd.onrender.com"]}})
 
     with app.app_context():
         db.create_all()
