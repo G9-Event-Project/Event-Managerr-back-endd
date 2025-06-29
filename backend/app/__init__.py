@@ -5,6 +5,7 @@ from flask_bcrypt import Bcrypt
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
+from flask_migrate import Migrate
 from dotenv import load_dotenv
 import os
 
@@ -12,6 +13,7 @@ db = SQLAlchemy()
 jwt = JWTManager()
 bcrypt = Bcrypt()
 limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
+migrate = Migrate()
 
 def create_app():
     load_dotenv()
@@ -21,13 +23,15 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
+
+    from backend.app.models import User, Event, Comment, Participant
+
+    migrate.init_app(app, db)
     jwt.init_app(app)
     bcrypt.init_app(app)
     limiter.init_app(app)
-    CORS(app, resources={r"/api/*": {"origins": ["https://event-manager-front-endd.onrender.com"]}})
+    CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
 
-    with app.app_context():
-        db.create_all()
 
     @app.route('/')
     def home():
@@ -39,6 +43,7 @@ def create_app():
     @app.route('/favicon.ico')
     def favicon():
         return '', 204
+
 
     from backend.app.routes.auth import auth_bp
     from backend.app.routes.events import events_bp

@@ -32,9 +32,9 @@ def register():
 @limiter.limit('10 per minute')
 def login():
     data = request.get_json()
-    if not data or not all(k in data for k in ['email', 'password']):
-        return jsonify({'error': 'Missing email or password'}), 400
-    user = User.query.filter_by(email=data['email']).first()
+    if not data or not all(k in data for k in ['username', 'password']):
+        return jsonify({'error': 'Missing username or password'}), 400
+    user = User.query.filter_by(username=data['username']).first()
     if user and bcrypt.check_password_hash(user.password_hash, data['password']):
         access_token = create_access_token(identity=user.id, expires_delta=timedelta(hours=1))
         refresh_token = create_refresh_token(identity=user.id)
@@ -43,7 +43,7 @@ def login():
             'refresh_token': refresh_token,
             'user': user.to_dict()
         }), 200
-    return jsonify({'error': 'Invalid email or password'}), 401
+    return jsonify({'error': 'Invalid username or password'}), 401
 
 # Token Refresh
 @auth_bp.route('/refresh', methods=['POST'])
