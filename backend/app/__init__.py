@@ -43,6 +43,13 @@ def create_app():
     @app.route('/favicon.ico')
     def favicon():
         return '', 204
+    
+    @app.after_request
+    def after_request(response):
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+        return response
+
 
 
     from backend.app.routes.auth import auth_bp

@@ -21,7 +21,7 @@ def get_event(id):
     return jsonify(event.to_dict()), 200
 
 # POST create event
-@events_bp.route('/', methods=['POST'])
+@events_bp.route('/', methods=['POST', 'OPTIONS'])
 @jwt_required()
 @limiter.limit("5 per minute", key_func=get_jwt_identity)
 def create_event():
