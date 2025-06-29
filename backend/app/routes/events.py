@@ -4,7 +4,7 @@ from backend.app.models import Event
 from backend.app import db, limiter
 from datetime import datetime
 
-events_bp = Blueprint('events', __name__, url_prefix='/events')
+events_bp = Blueprint('events', __name__)
 
 # GET all events
 @events_bp.route('/', methods=['GET'])

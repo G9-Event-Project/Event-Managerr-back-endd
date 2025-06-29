@@ -51,7 +51,7 @@ def create_app():
     from backend.app.routes.profile import profile_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api')
-    app.register_blueprint(events_bp, url_prefix='/api')
+    app.register_blueprint(events_bp, url_prefix='/api/events')
     app.register_blueprint(comments_bp, url_prefix='/api')
     app.register_blueprint(profile_bp, url_prefix='/api')
 

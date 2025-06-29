@@ -23,6 +23,13 @@ class User(db.Model):
         from app import bcrypt
         return bcrypt.check_password_hash(self.password_hash, password.encode('utf-8'))
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "email": self.email
+        }
+
 class Event(db.Model):
     __tablename__ = 'events'
     id = Column(Integer, primary_key=True)
@@ -32,8 +39,23 @@ class Event(db.Model):
     location = Column(String(100))
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
     comments = relationship('Comment', backref='event', lazy=True)
     participants = relationship('Participant', backref='event', lazy=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "location": self.location,
+            "date": self.date.strftime('%Y-%m-%d') if self.date else None,
+            "user_id": self.user_id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
+        }
 
 class Comment(db.Model):
     __tablename__ = 'comments'
